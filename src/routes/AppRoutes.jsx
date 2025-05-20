@@ -7,7 +7,7 @@ export default function AppRoutes() {
   return (
     <Routes>  {/* Usando Routes para definir as rotas */}
       <Route path="/" element={<Home />} />
-      <Route path="/detalhes/:codigo" element={<Detalhes />} />
+      <Route path="/detalhes/:id" element={<Detalhes />} />
     </Routes>
   );
 }

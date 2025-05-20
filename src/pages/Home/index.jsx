@@ -1,33 +1,33 @@
+// Home.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
-  const [countries, setCountries] = useState([]);
+  const [estados, setEstados] = useState([]);
 
   useEffect(() => {
-    axios.get('https://restcountries.com/v3.1/all')
+    axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
       .then(response => {
-        setCountries(response.data);
+        const estadosOrdenados = response.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setEstados(estadosOrdenados);
       })
       .catch(error => console.log(error));
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-8">Lista de Países</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {countries.map(country => (
-          <div key={country.cca3} className="bg-white shadow-lg rounded-lg p-4 text-center">
-            <Link to={`/detalhes/${country.cca3}`}>
-              <img
-                src={country.flags.png}
-                alt={country.name.common}
-                className="w-full h-32 object-contain mb-4 mx-auto"
-              />
-              <h2 className="text-xl font-semibold">{country.name.common}</h2>
-            </Link>
-          </div>
+    <div className="min-h-screen bg-white text-gray-800 p-10 flex flex-col items-center">
+      <h1 className="text-4xl font-semibold mb-10 tracking-tight">Estados do Brasil</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+        {estados.map(estado => (
+          <Link
+            key={estado.id}
+            to={`/detalhes/${estado.id}`}
+            className="border border-gray-300 rounded-md p-5 flex flex-col items-center justify-center hover:border-blue-600 transition-colors"
+          >
+            <span className="text-lg font-medium mb-1">{estado.nome}</span>
+            <span className="text-sm text-gray-500 tracking-wide">{estado.sigla}</span>
+          </Link>
         ))}
       </div>
     </div>
