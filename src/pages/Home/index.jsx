@@ -1,10 +1,11 @@
-// Home.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useFavoritos } from '../../contexts/FavoriteContext';
 
 const Home = () => {
   const [estados, setEstados] = useState([]);
+  const { favoritos, toggleFavorito } = useFavoritos();
 
   useEffect(() => {
     axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
@@ -16,21 +17,46 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 p-10 flex flex-col items-center">
-      <h1 className="text-4xl font-semibold mb-10 tracking-tight">Estados do Brasil</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl">
-        {estados.map(estado => (
-          <Link
-            key={estado.id}
-            to={`/detalhes/${estado.id}`}
-            className="border border-gray-300 rounded-md p-5 flex flex-col items-center justify-center hover:border-blue-600 transition-colors"
-          >
-            <span className="text-lg font-medium mb-1">{estado.nome}</span>
-            <span className="text-sm text-gray-500 tracking-wide">{estado.sigla}</span>
-          </Link>
-        ))}
+    <div className="min-h-screen bg-white text-gray-800 py-16 px-4">
+      <h1 className="text-4xl font-bold text-center mb-12 flex items-center justify-center gap-3">
+        <span
+          className="inline-block globe hover:animate-spin-slow"
+          role="img"
+          aria-label="globo"
+        >
+          🌎
+        </span>
+        Estados do Brasil 🇧🇷
+      </h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        {estados.map((estado) => {
+          const isFav = favoritos.some(fav => fav.id === estado.id);
+
+          return (
+            <div
+              key={estado.id}
+              className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center justify-between transition-all duration-300 hover:scale-120"
+            >
+              <Link to={`/detalhes/${estado.id}`} className="text-center mb-4">
+                <h2 className="text-xl font-bold">
+                  📍 {estado.nome}
+                </h2>
+                <p className="text-sm text-gray-500">Sigla: {estado.sigla}</p>
+              </Link>
+
+              <button
+                onClick={() => toggleFavorito(estado)}
+                className="text-2xl mt-2 transition-transform hover:scale-125"
+              >
+                {isFav ? '❤️' : '🤍'}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
+
   );
 };
 

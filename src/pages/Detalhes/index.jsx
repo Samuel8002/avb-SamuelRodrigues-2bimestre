@@ -1,40 +1,43 @@
-// Detalhes.jsx
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useFavoritos } from '../../contexts/FavoriteContext';
 
 const Detalhes = () => {
   const { id } = useParams();
-  const [municipios, setMunicipios] = useState([]);
   const [estado, setEstado] = useState(null);
+  const { favoritos, toggleFavorito } = useFavoritos();
 
   useEffect(() => {
-    axios.get(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${id}`)
-      .then(res => setEstado(res.data))
-      .catch(err => console.error(err));
-
-    axios.get(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${id}/municipios`)
-      .then(res => setMunicipios(res.data))
-      .catch(err => console.error(err));
+    axios
+      .get(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${id}`)
+      .then((response) => {
+        setEstado(response.data);
+      })
+      .catch((error) => console.error(error));
   }, [id]);
 
-  if (!estado) return <p className="text-center text-gray-500 mt-12">Carregando estado...</p>;
+  if (!estado) return <p className="text-center mt-20">🔄 Carregando detalhes...</p>;
+
+  const isFavorito = favoritos.some((item) => item.id === estado.id);
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 p-10 max-w-4xl mx-auto">
-      <h1 className="text-4xl font-semibold mb-6">{estado.nome} <span className="text-blue-600">({estado.sigla})</span></h1>
+    <div className="min-h-screen bg-white text-gray-800 py-16 px-4 flex flex-col items-center">
+      <h1 className="text-3xl font-bold mb-6">📋 Detalhes do Estado</h1>
 
-      <h2 className="text-2xl font-medium mb-4 border-b border-gray-300 pb-2">Municípios</h2>
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-xl text-center">
+        <h2 className="text-2xl font-semibold mb-2">📍 {estado.nome}</h2>
+        <p className="text-gray-600 mb-2">🆔 ID: {estado.id}</p>
+        <p className="text-gray-600 mb-2">🔤 Sigla: {estado.sigla}</p>
+        <p className="text-gray-600">🌍 Região: {estado.regiao.nome}</p>
 
-      {municipios.length === 0 ? (
-        <p className="text-gray-500">Carregando municípios...</p>
-      ) : (
-        <ul className="list-disc list-inside space-y-1 max-h-[60vh] overflow-auto text-gray-700">
-          {municipios.map(mun => (
-            <li key={mun.id} className="hover:text-blue-600 cursor-default">{mun.nome}</li>
-          ))}
-        </ul>
-      )}
+        <button
+          onClick={() => toggleFavorito(estado)}
+          className="mt-6 text-2xl transition-transform hover:scale-125"
+        >
+          {isFavorito ? '❤️' : '🤍'}
+        </button>
+      </div>
     </div>
   );
 };
